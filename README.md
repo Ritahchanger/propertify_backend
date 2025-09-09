@@ -162,7 +162,7 @@ Before you begin, ensure you have the following installed:
    SMS_USERNAME=your-sms-username
    
    # Application Configuration
-   PORT=8000
+   PORT=5000
    NODE_ENV=development
    FRONTEND_URL=http://localhost:5173
    
@@ -584,7 +584,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Support Team
 
-- **Lead Backend Developer**: [Rita Changer](https://github.com/Ritahchanger)
+- **Lead Backend Developer**: [Ritahchanger](https://github.com/Ritahchanger)
 - **Database Architecture**: PostgreSQL optimization and schema design
 - **API Integration**: M-Pesa, Google OAuth, and third-party services
 - **Security Implementation**: JWT, RBAC, and data protection
