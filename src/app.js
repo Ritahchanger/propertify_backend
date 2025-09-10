@@ -19,9 +19,14 @@ const authRoutes = require("./modules/auth/routes/authRoutes");
 const estateRoutes = require("./modules/estates/routes/estate.routes")
 
 
+const tenantRoute = require("./modules/tenants/routes/tenantRoutes")
+
+
 const { authMiddleware } = require("./modules/auth/middleware/authMiddleware")
 
+
 const helmet = require("helmet");
+
 
 const compression = require("compression");
 
@@ -62,7 +67,9 @@ app.get("/api/v1/hello", (req, res) => {
 // Routes
 app.use("/api/v1/auth", authRoutes);
 
-app.use("/api/v1/estates",authMiddleware, estateRoutes);
+app.use("/api/v1/estates", authMiddleware, estateRoutes);
+
+app.use("/api/v1/tenant", authMiddleware, tenantRoute);
 
 
 // Handle 404
