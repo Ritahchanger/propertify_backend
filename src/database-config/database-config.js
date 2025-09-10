@@ -6,7 +6,7 @@ console.log('Database URL:', process.env.DATABASE_URL ? 'Loaded' : 'Missing');
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
-    logging: console.log, // Enable logging temporarily for debugging
+    logging: false, // Enable logging temporarily for debugging
     dialectOptions: {
         ssl: {
             require: true,

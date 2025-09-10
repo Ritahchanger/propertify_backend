@@ -67,9 +67,14 @@ app.get("/api/v1/hello", (req, res) => {
 // Routes
 app.use("/api/v1/auth", authRoutes);
 
+
 app.use("/api/v1/estates", authMiddleware, estateRoutes);
 
+
 app.use("/api/v1/tenant", authMiddleware, tenantRoute);
+
+
+app.use('/api/v1/unit', authMiddleware, require('./modules/units/routes/unit.route'))
 
 
 // Handle 404
