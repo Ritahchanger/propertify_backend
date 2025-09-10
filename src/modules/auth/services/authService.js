@@ -18,7 +18,9 @@ if (!ACCESS_SECRET || !REFRESH_SECRET) {
 }
 
 class AuthService {
+
     static async validatePassword(user, plainPassword) {
+    
         if (!user) return false;
         return bcrypt.compare(plainPassword, user.passwordHash);
     }

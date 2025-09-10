@@ -43,8 +43,7 @@ class UserService {
 
     static async getUserByEmail(email) {
         return User.findOne({
-            where: { email },
-            attributes: { exclude: ['passwordHash'] },
+            where: { email }
         });
     }
 

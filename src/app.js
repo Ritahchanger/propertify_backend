@@ -1,24 +1,52 @@
 const express = require("express");
+
+
 const cookieParser = require("cookie-parser");
+
+
 const morgan = require("morgan");
 
+
 const { AppError, globalErrorHandler } = require("./shared/middlewares");
+
+
 const { swaggerUi, swaggerSpec } = require("./swagger");
+
 
 const authRoutes = require("./modules/auth/routes/authRoutes");
 
+
+const estateRoutes = require("./modules/estates/routes/estate.routes")
+
+
+const { authMiddleware } = require("./modules/auth/middleware/authMiddleware")
+
+const helmet = require("helmet");
+
+const compression = require("compression");
+
+
 const app = express();
 
+
+
 // Middleware
+
+
 app.use(express.json());
+
+
+app.use(helmet()); // set security headers
+
+app.use(compression()); // gzip compression
+
+app.use(express.urlencoded({ extended: true }));
+
 
 app.use(cookieParser()); // so refreshToken/accessToken cookies can be read
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev")); // request logging in dev
 }
-
-
-
 
 // Swagger docs
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -33,6 +61,8 @@ app.get("/api/v1/hello", (req, res) => {
 
 // Routes
 app.use("/api/v1/auth", authRoutes);
+
+app.use("/api/v1/estates",authMiddleware, estateRoutes);
 
 
 // Handle 404

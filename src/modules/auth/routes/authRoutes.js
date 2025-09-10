@@ -4,7 +4,6 @@ const AuthController = require('../controllers/authController');
 const { authMiddleware } = require('../middleware/authMiddleware');
 
 
-
 const asyncWrapper = require("../../../shared/middlewares/async-thunk/asyncWrapper")
 
 
