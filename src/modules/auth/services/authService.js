@@ -53,7 +53,9 @@ class AuthService {
         if (!ok) throw new Error('Invalid credentials');
 
         // create safe payload
-        const payload = { sub: user.id, role: user.role, email: user.email };
+        const payload = { id: user.id, role: user.role, email: user.email };
+        
+        // const payload = { sub: user.id, role: user.role, email: user.email };
 
         const accessToken = this.generateAccessToken(payload);
 
