@@ -123,57 +123,92 @@ Before you begin, ensure you have the following installed:
 3. **Environment Setup**
    ```bash
    cp .env.example .env
+
    ```
    
-   Update the `.env` file with your configuration:
+Update the `.env` file with your configuration:
+
    ```env
-   # Database Configuration
-   DATABASE_URL=postgresql://username:password@localhost:5432/propertify_db
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_NAME=propertify_db
-   DB_USER=your_db_user
-   DB_PASSWORD=your_db_password
-   
-   # JWT Configuration
-   JWT_SECRET=your-super-secret-jwt-key
-   JWT_REFRESH_SECRET=your-refresh-token-secret
-   JWT_EXPIRES_IN=15m
-   JWT_REFRESH_EXPIRES_IN=7d
-   
-   # Google OAuth
-   GOOGLE_CLIENT_ID=your-google-client-id
-   GOOGLE_CLIENT_SECRET=your-google-client-secret
-   GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
-   
-   # M-Pesa Configuration
-   MPESA_CONSUMER_KEY=your-mpesa-consumer-key
-   MPESA_CONSUMER_SECRET=your-mpesa-consumer-secret
-   MPESA_SHORTCODE=your-business-shortcode
-   MPESA_PASSKEY=your-mpesa-passkey
-   MPESA_CALLBACK_URL=http://localhost:8000/api/payments/mpesa/callback
-   
-   # Email Configuration
-   EMAIL_SERVICE=gmail
-   EMAIL_USER=your-email@gmail.com
-   EMAIL_PASSWORD=your-app-password
-   
-   # SMS Configuration (Africa's Talking)
-   SMS_API_KEY=your-sms-api-key
-   SMS_USERNAME=your-sms-username
-   
-   # Application Configuration
-   PORT=5000
-   NODE_ENV=development
-   FRONTEND_URL=http://localhost:5173
-   
-   # File Upload
-   MAX_FILE_SIZE=10485760
-   UPLOAD_PATH=./uploads
-   
-   # Rate Limiting
-   RATE_LIMIT_WINDOW=15
-   RATE_LIMIT_MAX_REQUESTS=100
+  PORT=5000
+
+DATABASE_URL=
+
+JWT_ACCESS_SECRET=your-very-strong-access-secret
+
+JWT_REFRESH_SECRET=your-very-strong-refresh-secret
+
+ACCESS_TOKEN_EXPIRY=15m
+
+REFRESH_TOKEN_EXPIRY=7d
+
+NODE_ENV=development
+
+
+COOKIE_DOMAIN=localhost
+
+COMPANY_EMAIL=
+
+COMPANY_EMAIL_PASSWORD=
+
+
+NODE_ENV=development
+
+
+
+
+#JWT Configuration
+JWT_REFRESH_SECRET=your-refresh-token-secret
+
+JWT_EXPIRES_IN=15m
+
+JWT_REFRESH_EXPIRES_IN=7d
+
+#Google OAuth
+GOOGLE_CLIENT_ID=your-google-client-id
+
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
+
+#M-Pesa Configuration
+MPESA_CONSUMER_KEY=your-mpesa-consumer-key
+
+MPESA_CONSUMER_SECRET=your-mpesa-consumer-secret
+
+MPESA_SHORTCODE=your-business-shortcode
+
+MPESA_PASSKEY=your-mpesa-passkey
+
+MPESA_CALLBACK_URL=http://localhost:8000/api/payments/mpesa/callback
+
+#Email Configuration
+EMAIL_SERVICE=gmail
+
+EMAIL_USER=your-email@gmail.com
+
+EMAIL_PASSWORD=your-app-password
+
+#SMS Configuration (Africa's Talking)
+SMS_API_KEY=your-sms-api-key
+
+SMS_USERNAME=your-sms-username
+
+#Application Configuration
+PORT=5000
+
+NODE_ENV=development
+
+FRONTEND_URL=http://localhost:5173
+
+#File Upload
+MAX_FILE_SIZE=10485760
+
+UPLOAD_PATH=./uploads
+
+#Rate Limiting
+RATE_LIMIT_WINDOW=15
+
+RATE_LIMIT_MAX_REQUESTS=100
    ```
 
 4. **Database Setup**
