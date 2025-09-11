@@ -5,9 +5,9 @@ class TenantService {
     async createApplication(data) {
         const application = await TenantApplication.create(data);
 
-        // send confirmation email to applicant
+
         await this.sendEmail(
-            data.email, // assuming you have applicant email in request body
+            data.email, 
             "Application Received",
             `Hello, your application for unit ${data.unitId} has been received. Our team will review and get back to you soon.`
         );
@@ -42,7 +42,6 @@ class TenantService {
 
         await application.save();
 
-        // send status update email
         let subject, text;
         if (status === "approved") {
             subject = "Application Approved 🎉";

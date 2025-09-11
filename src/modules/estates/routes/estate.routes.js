@@ -16,4 +16,7 @@ Router.get('/', asyncHandler(EstateController.getEstates));
 
 Router.get('/:id', asyncHandler(EstateController.getEstateById));
 
+Router.get("/:estateId/units", asyncHandler(EstateController.getEstateWithUnits));
+
+
 module.exports = Router;
