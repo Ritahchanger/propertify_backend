@@ -1,40 +1,62 @@
-const { Estate, Unit, User } = require('../../../database-config/index');
+const { Estate, Unit, User, TenantApplication } = require('../../../database-config/index');
 
 class EstateService {
 
     static async getEstateWithUnits(estateId) {
-
         const estate = await Estate.findByPk(estateId, {
             include: [
                 {
                     model: User,
                     as: "owner",
                     attributes: ["id", "firstName", "lastName", "email", "phone", "role"],
-                    where: { role: "owner" },
-                    required: true,
                 },
                 {
                     model: Unit,
-                    as: "units"
-                }
-            ]
+                    as: "units",
+                    include: [
+                        {
+                            model: TenantApplication,
+                            as: "applications",
+                            where: { applicationStatus: "approved" },
+                            required: false,
+                            separate: true,
+                            limit: 1,
+                            order: [["appliedAt", "DESC"]],
+                            include: [
+                                {
+                                    model: User,
+                                    as: "applicant",
+                                    attributes: ["id", "firstName", "lastName", "email", "phone", "role"],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
         });
 
         if (!estate) {
-            const error = new Error("Estate not found");
-            error.statusCode = 404;
-            throw error;
+            throw new Error("Estate not found");
         }
 
-        const totalUnits = estate.units.length;
+        let estateData = estate.toJSON();
 
-        return {
-            ...estate.toJSON(),
-            totalUnits,
-        };
 
-        
+        estateData.units = estateData.units.map(unit => {
+            const approvedApplication = unit.applications?.[0];
+            return {
+                ...unit,
+                tenant: approvedApplication ? approvedApplication.applicant : null,
+                applications: undefined,
+            };
+        });
+
+
+        estateData.totalUnits = estateData.units.length;
+
+        return estateData;
     }
+
     static async createEstate(data) {
         return await Estate.create(data);
     }
