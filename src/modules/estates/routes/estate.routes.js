@@ -11,15 +11,8 @@ Router.post('/',
     asyncHandler(EstateController.createEstate)
 );
 
-
-// Router.get('/',
-
-//     asyncHandler(EstateController.getEstates)
-// );
-
-
 Router.get('/',
-    requireRole(['owner', 'manager', 'tenant', 'accountant']),
+    requireRole(['owner', 'manager']),
     asyncHandler(EstateController.getEstates)
 );
 
