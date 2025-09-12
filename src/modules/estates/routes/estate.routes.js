@@ -1,7 +1,7 @@
 const express = require('express');
 const EstateController = require('../controllers/estate.controller');
 const asyncHandler = require('../../../shared/middlewares/async-thunk/asyncWrapper');
-const { requireRole, requirePermission } = require('../../../modules/auth/roles/roleAuth');
+const { requireRole } = require('../../../modules/auth/roles/roleAuth');
 
 const Router = express.Router();
 
@@ -12,7 +12,7 @@ Router.post('/',
 );
 
 Router.get('/',
-    requireRole(['owner', 'manager']),
+    requireRole(['owner', 'manager', 'tenant', 'accountant']),
     asyncHandler(EstateController.getEstates)
 );
 

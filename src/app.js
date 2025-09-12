@@ -77,6 +77,9 @@ app.use("/api/v1/tenant", authMiddleware, tenantRoute);
 app.use('/api/v1/unit', authMiddleware, require('./modules/units/routes/unit.route'))
 
 
+app.use('/api/v1/leases', authMiddleware, require('./modules/leases/routes/lease.routes'))
+
+
 // Handle 404
 app.all(/.*/, (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
