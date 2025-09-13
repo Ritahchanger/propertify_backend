@@ -1,8 +1,10 @@
 // middleware/roleAuth.js
 const { requirePermission, requireRole } = require("../middleware/role.middleware")
 
-// Define role hierarchy and permissions
 
+
+
+// Define role hierarchy and permissions
 const PERMISSIONS = {
     // Payment-related permissions
     payments: {
@@ -39,6 +41,8 @@ const PERMISSIONS = {
     }
 };
 
+
+
 // Check if user has specific permission
 const hasPermission = (userRole, resource, action) => {
     if (!PERMISSIONS[resource] || !PERMISSIONS[resource][action]) {
@@ -48,9 +52,9 @@ const hasPermission = (userRole, resource, action) => {
     return PERMISSIONS[resource][action].includes(userRole);
 };
 
+
+
 // Check role hierarchy
-
-
 // Utility functions for direct use in controllers
 const authUtils = {
     canViewPayments: (role) => hasPermission(role, 'payments', 'view'),
