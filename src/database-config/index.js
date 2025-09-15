@@ -14,12 +14,17 @@ const EstateExpense = require('../modules/expenses/models/estate-expense.model')
 const Notification = require('../modules/notifications/models/notification.model');
 const AuditLog = require('../modules/audit/models/audit-log.model');
 
+const AuthAttempt = require("../modules/auth/models/auth-attempt.model");
+
+// User associations
 User.hasMany(Estate, { foreignKey: 'ownerId', as: 'ownedEstates' });
 User.hasMany(TenantApplication, { foreignKey: 'applicantId', as: 'applications' });
 User.hasMany(Lease, { foreignKey: 'tenantId', as: 'leases' });
 User.hasMany(Payment, { foreignKey: 'tenantId', as: 'payments' });
 User.hasMany(MaintenanceRequest, { foreignKey: 'tenantId', as: 'maintenanceRequests' });
 User.hasMany(Notification, { foreignKey: 'userId', as: 'notifications' });
+User.hasMany(AuthAttempt,{foreignKey:"userId", as:"authAttempts"})
+AuthAttempt.belongsTo(User,{foreignKey:'userId', as:'authAttempts'});
 
 // Estate associations
 Estate.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
@@ -76,6 +81,8 @@ Notification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 // Audit Log associations
 AuditLog.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+
 
 // Export all models and sequelize instance
 module.exports = {
