@@ -19,6 +19,9 @@ const authRoutes = require("./modules/auth/routes/authRoutes");
 const estateRoutes = require("./modules/estates/routes/estate.routes")
 
 
+const cors = require("cors")
+
+
 const tenantRoute = require("./modules/tenants/routes/tenantRoutes")
 
 
@@ -33,6 +36,11 @@ const compression = require("compression");
 
 const app = express();
 
+
+app.use(cors({
+  origin: "http://localhost:5173", // your frontend URL
+  credentials: true, // important for cookies/authorization headers
+}));
 
 
 // Middleware

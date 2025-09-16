@@ -28,7 +28,6 @@ Router.post('/logout', authMiddleware, asyncWrapper(AuthController.logout));
 
 
 
-
 Router.get('/me', authMiddleware, asyncWrapper(AuthController.me));
 
 

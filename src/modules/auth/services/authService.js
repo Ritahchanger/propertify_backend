@@ -13,14 +13,14 @@ const REFRESH_EXP = process.env.REFRESH_TOKEN_EXPIRY || '7d';
 const bcrypt = require('bcrypt');
 
 if (!ACCESS_SECRET || !REFRESH_SECRET) {
-    
+
     throw new Error('JWT secrets are not defined in environment variables');
 }
 
 class AuthService {
 
     static async validatePassword(user, plainPassword) {
-    
+
         if (!user) return false;
         return bcrypt.compare(plainPassword, user.passwordHash);
     }
@@ -34,11 +34,19 @@ class AuthService {
     }
 
     static verifyAccessToken(token) {
-        return jwt.verify(token, ACCESS_SECRET);
+        try {
+            return jwt.verify(token, ACCESS_SECRET);
+        } catch (error) {
+            return null;
+        }
     }
 
     static verifyRefreshToken(token) {
-        return jwt.verify(token, REFRESH_SECRET);
+        try {
+            return jwt.verify(token, REFRESH_SECRET);
+        } catch (error) {
+            return null;
+        }
     }
 
     // convenience: get user and tokens after login
@@ -54,7 +62,7 @@ class AuthService {
 
         // create safe payload
         const payload = { id: user.id, role: user.role, email: user.email };
-        
+
         // const payload = { sub: user.id, role: user.role, email: user.email };
 
         const accessToken = this.generateAccessToken(payload);
