@@ -23,8 +23,9 @@ User.hasMany(Lease, { foreignKey: 'tenantId', as: 'leases' });
 User.hasMany(Payment, { foreignKey: 'tenantId', as: 'payments' });
 User.hasMany(MaintenanceRequest, { foreignKey: 'tenantId', as: 'maintenanceRequests' });
 User.hasMany(Notification, { foreignKey: 'userId', as: 'notifications' });
-User.hasMany(AuthAttempt,{foreignKey:"userId", as:"authAttempts"})
-AuthAttempt.belongsTo(User,{foreignKey:'userId', as:'authAttempts'});
+User.hasMany(AuthAttempt, { foreignKey: "userId", as: "authAttempts" });
+AuthAttempt.belongsTo(User, { foreignKey: "userId", as: "user" });
+
 
 // Estate associations
 Estate.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
@@ -100,4 +101,5 @@ module.exports = {
     EstateExpense,
     Notification,
     AuditLog,
+    AuthAttempt,
 };

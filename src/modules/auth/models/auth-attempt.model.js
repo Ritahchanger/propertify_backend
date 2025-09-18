@@ -1,4 +1,4 @@
-const { sequelize,DataTypes } = require("../../../database-config/database-config");
+const { sequelize, DataTypes } = require("../../../database-config/database-config");
 
 const AuthAttempt = sequelize.define('AuthAttempt', {
     id: {

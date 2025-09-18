@@ -1,26 +1,21 @@
 const jwt = require('jsonwebtoken');
-
-const UserService = require('../../users/services/userService');
-
-const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
-
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
-
-const ACCESS_EXP = process.env.ACCESS_TOKEN_EXPIRY || '15m';
-
-const REFRESH_EXP = process.env.REFRESH_TOKEN_EXPIRY || '7d';
-
 const bcrypt = require('bcrypt');
 
-if (!ACCESS_SECRET || !REFRESH_SECRET) {
+const UserService = require('../../users/services/userService');
+const { AuthAttempt } = require('../../../database-config/index');
+const { transporter } = require("../../../shared/utils/transporter");
 
+const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
+const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+const ACCESS_EXP = process.env.ACCESS_TOKEN_EXPIRY || '15m';
+const REFRESH_EXP = process.env.REFRESH_TOKEN_EXPIRY || '7d';
+
+if (!ACCESS_SECRET || !REFRESH_SECRET) {
     throw new Error('JWT secrets are not defined in environment variables');
 }
 
 class AuthService {
-
     static async validatePassword(user, plainPassword) {
-
         if (!user) return false;
         return bcrypt.compare(plainPassword, user.passwordHash);
     }
@@ -33,10 +28,18 @@ class AuthService {
         return jwt.sign(payload, REFRESH_SECRET, { expiresIn: REFRESH_EXP });
     }
 
+    static generatePasswordResetToken(user) {
+        return jwt.sign(
+            { id: user.id, email: user.email },
+            ACCESS_SECRET,
+            { expiresIn: '1h' }
+        );
+    }
+
     static verifyAccessToken(token) {
         try {
             return jwt.verify(token, ACCESS_SECRET);
-        } catch (error) {
+        } catch {
             return null;
         }
     }
@@ -44,67 +47,138 @@ class AuthService {
     static verifyRefreshToken(token) {
         try {
             return jwt.verify(token, REFRESH_SECRET);
-        } catch (error) {
+        } catch {
             return null;
         }
     }
 
-    // convenience: get user and tokens after login
-    static async loginWithEmail(email, plainPassword) {
+    static async loginWithEmail(email, plainPassword, req = null) {
+        let user = null;
 
-        const user = await UserService.getUserByEmail(email);
+        try {
+            user = await UserService.getUserByEmail(email);
 
-        if (!user) throw new Error('Invalid credentials');
+            const clientInfo = req?.clientInfo || { ip: "unknown", userAgent: "unknown" };
 
-        const ok = await this.validatePassword(user, plainPassword);
+            if (!user) {
+                await AuthAttempt.create({
+                    userId: null,
+                    ipAddress: clientInfo.ip,
+                    userAgent: clientInfo.userAgent,
+                    attemptType: 'login',
+                    status: 'failed',
+                    reason: 'User not found',
+                });
+                throw new Error('Invalid credentials');
+            }
 
-        if (!ok) throw new Error('Invalid credentials');
+            const ok = await this.validatePassword(user, plainPassword);
+            if (!ok) {
+                await AuthAttempt.create({
+                    userId: user.id,
+                    ipAddress: clientInfo.ip,
+                    userAgent: clientInfo.userAgent,
+                    attemptType: 'login',
+                    status: 'failed',
+                    reason: 'Wrong password',
+                });
+                throw new Error('Invalid credentials');
+            }
 
-        // create safe payload
-        const payload = { id: user.id, role: user.role, email: user.email };
+            // ✅ Success
+            const payload = { id: user.id, role: user.role, email: user.email };
+            const accessToken = this.generateAccessToken(payload);
+            const refreshToken = this.generateRefreshToken(payload);
 
-        // const payload = { sub: user.id, role: user.role, email: user.email };
+            await AuthAttempt.create({
+                userId: user.id,
+                ipAddress: clientInfo.ip,
+                userAgent: clientInfo.userAgent,
+                attemptType: 'login',
+                status: 'success',
+                reason: 'Successful login',
+            });
 
-        const accessToken = this.generateAccessToken(payload);
-
-        const refreshToken = this.generateRefreshToken(payload);
-
-        // optional: persist refresh token in DB (recommended) to allow revocation (not implemented here)
-        return { user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role }, accessToken, refreshToken };
-
+            return {
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    role: user.role,
+                },
+                accessToken,
+                refreshToken,
+            };
+        } catch (err) {
+            throw err;
+        }
     }
 
+    static async sendPasswordResetEmail(user, resetToken) {
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
-    // Multifactor Authentication
+        await transporter.sendMail({
+            from: `"Support" <${process.env.COMPANY_EMAIL}>`,
+            to: user.email,
+            subject: "Password Reset Request",
+            html: `
+                <p>Hello ${user.firstName || ''},</p>
+                <p>You requested a password reset. Click the link below to reset your password:</p>
+                <p><a href="${resetLink}">Reset Password</a></p>
+                <p>If you did not request this, please ignore this email.</p>
+            `,
+        });
+    }
 
+    static async resetPassword(token, newPassword, req = null) {
+        try {
+            const decoded = jwt.verify(token, ACCESS_SECRET);
+            const user = await UserService.getUserById(decoded.id);
 
+            const clientInfo = req?.clientInfo || { ip: "unknown", userAgent: "unknown" };
 
+            if (!user) {
+                await AuthAttempt.create({
+                    userId: null,
+                    ipAddress: clientInfo.ip,
+                    userAgent: clientInfo.userAgent,
+                    attemptType: "password_reset",
+                    status: "failed",
+                    reason: "User not found",
+                });
+                throw new Error("Invalid or expired token");
+            }
 
+            const hashed = await bcrypt.hash(newPassword, 10);
+            await UserService.updateUser(user.id, { passwordHash: hashed });
 
+            await AuthAttempt.create({
+                userId: user.id,
+                ipAddress: clientInfo.ip,
+                userAgent: clientInfo.userAgent,
+                attemptType: "password_reset",
+                status: "success",
+                reason: "Password reset successful",
+            });
 
+            return { message: "Password has been reset successfully" };
+        } catch (error) {
+            const clientInfo = req?.clientInfo || { ip: "unknown", userAgent: "unknown" };
 
+            await AuthAttempt.create({
+                userId: null,
+                ipAddress: clientInfo.ip,
+                userAgent: clientInfo.userAgent,
+                attemptType: 'password_reset',
+                status: 'failed',
+                reason: error.message,
+            });
 
+            throw new Error("Password reset failed: " + error.message);
+        }
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // OIDC Authentication
 }
 
 module.exports = AuthService;

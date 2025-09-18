@@ -36,7 +36,8 @@ class AuthController {
         const { email, password } = req.body;
         const { user, accessToken, refreshToken } = await AuthService.loginWithEmail(
             email,
-            password
+            password,
+            req
         );
 
         // set cookies
@@ -101,6 +102,34 @@ class AuthController {
 
         res.json({ user });
     }
+
+    static async requestPasswordReset(email) {
+
+        const user = await UserService.getUserByEmail(email);
+
+        if (!user) {
+
+            throw new Error("User not found");
+
+        }
+
+        const resetToken = AuthService.generatePasswordResetToken(user);
+
+        await AuthService.sendPasswordResetEmail(user, resetToken);
+
+        return res.json({ message: "Password reset email sent" });
+
+    }
+
+    static async resetPassword(req, res) {
+
+        const { token, newPassword } = req.body;
+
+        const result = await AuthService.resetPassword(token, newPassword);
+
+        res.json(result);
+    }
+
 }
 
 module.exports = AuthController;

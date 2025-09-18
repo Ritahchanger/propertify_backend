@@ -36,6 +36,9 @@ const compression = require("compression");
 
 const app = express();
 
+const clientLogger = require("./shared/middlewares/logger")
+
+console.log("Current NODE_ENV:", process.env.NODE_ENV);
 
 app.use(cors({
   origin: "http://localhost:5173", // your frontend URL
@@ -44,6 +47,9 @@ app.use(cors({
 
 
 // Middleware
+
+
+app.use(clientLogger);
 
 
 app.use(express.json());

@@ -4,14 +4,14 @@ const ACCESS_COOKIE_NAME = 'accessToken';
 
 async function authMiddleware(req, res, next) {
     try {
-        
+
         let token;
 
         if (req.cookies && req.cookies[ACCESS_COOKIE_NAME]) {
             token = req.cookies[ACCESS_COOKIE_NAME];
- 
+
         }
- 
+
         if (!token) {
             return res.status(401).json({ error: 'Not authenticated — no token provided' });
         }
@@ -28,12 +28,12 @@ async function authMiddleware(req, res, next) {
             decoded = await decoded;
         }
 
-
         if (!decoded) {
-            return res.status(401).json({ error: 'Invalid or expired token' });
+
+            return res.status(401).json({ error: "Invalid or expired token" });
+
         }
 
-   
         req.user = decoded;
 
         return next();
