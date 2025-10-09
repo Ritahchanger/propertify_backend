@@ -42,6 +42,30 @@ class EstateController {
         return res.status(200).json(estate);
     }
 
+
+    static async getEstatesByOwnerPaginated(req, res) {
+        const { ownerId } = req.params;
+        const { page = 1, limit = 10 } = req.query;
+
+        if (!ownerId) {
+            const errObj = new Error("Owner ID is required");
+            errObj.statusCode = 400;
+            throw errObj;
+        }
+
+        const result = await EstateService.getEstatesByOwnerPaginated(
+            ownerId, 
+            parseInt(page), 
+            parseInt(limit)
+        );
+        
+        return res.status(200).json({
+            success: true,
+            ...result
+        });
+    }
+
+
 }
 
 module.exports = EstateController;
