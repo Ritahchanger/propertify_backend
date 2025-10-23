@@ -43,7 +43,7 @@ class AuthController {
         // set cookies
         res.cookie(ACCESS_COOKIE_NAME, accessToken, {
             ...COOKIE_OPTIONS,
-            maxAge: 15 * 60 * 1000, // 15 minutes
+            maxAge: 30 * 60 * 1000, // 15 minutes
         });
 
         res.cookie(REFRESH_COOKIE_NAME, refreshToken, {

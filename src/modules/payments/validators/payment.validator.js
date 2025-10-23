@@ -4,13 +4,16 @@ class PaymentValidator {
   // Base payment schema
   static get baseSchema() {
     return Joi.object({
-      invoiceId: Joi.string().uuid().required().messages({
+      invoiceId: Joi.string().uuid().allow(null).optional().messages({
         "string.guid": "Invoice ID must be a valid UUID",
-        "any.required": "Invoice ID is required",
       }),
       tenantId: Joi.string().uuid().required().messages({
         "string.guid": "Tenant ID must be a valid UUID",
         "any.required": "Tenant ID is required",
+      }),
+      unitId: Joi.string().uuid().required().messages({
+        "string.guid": "Unit ID must be a valid UUID",
+        "any.required": "Unit ID is required",
       }),
       amount: Joi.number()
         .positive()
@@ -93,6 +96,9 @@ class PaymentValidator {
       }),
       tenantId: Joi.string().uuid().optional().messages({
         "string.guid": "Tenant ID must be a valid UUID",
+      }),
+      unitId: Joi.string().uuid().optional().messages({
+        "string.guid": "Unit ID must be a valid UUID",
       }),
       amount: Joi.number()
         .positive()
@@ -203,6 +209,9 @@ class PaymentValidator {
     const schema = Joi.object({
       tenantId: Joi.string().uuid().optional().messages({
         "string.guid": "Tenant ID must be a valid UUID",
+      }),
+      unitId: Joi.string().uuid().optional().messages({
+        "string.guid": "Unit ID must be a valid UUID",
       }),
       invoiceId: Joi.string().uuid().optional().messages({
         "string.guid": "Invoice ID must be a valid UUID",
@@ -436,4 +445,5 @@ class PaymentValidator {
     }
   }
 }
+
 module.exports = PaymentValidator;

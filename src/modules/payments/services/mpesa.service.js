@@ -210,6 +210,7 @@ class MpesaService {
         invoiceId: invoiceId,
         tenantId: tenantId,
         amount: amount,
+        unitId: unitId,
         paymentMethod: "mpesa",
         phoneNumber: phone,
         paymentStatus: "pending",
@@ -217,6 +218,8 @@ class MpesaService {
         paymentDate: new Date(),
         notes: `STK Push initiated for Unit ${unit.unitNumber}`,
       });
+
+      console.log(initialPayment);
 
       // Generate callback URL with payment ID
       const callbackUrl = `${this.stkPushService.callbackBaseUrl}/staging/api/v1/stk/push/callback/${initialPayment.id}`;

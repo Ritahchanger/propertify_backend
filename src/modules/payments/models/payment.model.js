@@ -13,7 +13,7 @@ const Payment = sequelize.define(
     },
     invoiceId: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       field: "invoice_id",
     },
     tenantId: {

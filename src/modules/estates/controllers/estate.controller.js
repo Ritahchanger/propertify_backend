@@ -66,6 +66,141 @@ class EstateController {
     }
 
 
+    static async getOwnerApplications(req, res) {
+        
+            const ownerId = req.user.id; 
+            const { page = 1, limit = 10, status } = req.query;
+
+            const result = await EstateService.getApplicationsByOwner(
+                ownerId, 
+                parseInt(page), 
+                parseInt(limit), 
+                status
+            );
+
+            res.status(200).json({
+                success: true,
+                ...result
+            });
+        
+        }
+
+        static async getOwnerApplicationsStats(req, res) {
+          
+                const ownerId = req.user.id;
+    
+                const stats = await EstateService.getApplicationsStatsByOwner(ownerId);
+    
+                res.status(200).json({
+                    success: true,
+                    data: stats
+                });
+    
+            }
+
+
+
+
+            static async getEstateApplications(req, res) {
+                
+                    const ownerId = req.user.id;
+                    const { estateId } = req.params;
+                    const { page = 1, limit = 10 } = req.query;
+        
+                    const result = await EstateService.getApplicationsByEstate(
+                        ownerId,
+                        estateId,
+                        parseInt(page),
+                        parseInt(limit)
+                    );
+        
+                    res.status(200).json({
+                        success: true,
+                        ...result
+                    });
+                
+            
+            }
+
+
+            static async getOwnerApplicationById(req, res) {
+            
+                    const ownerId = req.user.id;
+                    const { applicationId } = req.params;
+
+                    const application = await EstateService.getApplicationById(applicationId);
+                    
+                    if (!application) {
+                        return res.status(404).json({
+                            success: false,
+                            message: "Application not found"
+                        });
+                    }
+        
+                    const isOwnerApplication = await EstateService.verifyApplicationOwnership(
+                        applicationId, 
+                        ownerId
+                    );
+        
+                    if (!isOwnerApplication) {
+                        return res.status(403).json({
+                            success: false,
+                            message: "Access denied. This application does not belong to your estate."
+                        });
+                    }
+        
+                    res.status(200).json({
+                        success: true,
+                        data: application
+                    });
+               
+            }
+
+
+
+            static async updateApplicationStatus(req, res) {
+                
+                    const ownerId = req.user.id;
+                    const { applicationId } = req.params;
+                    const { status, rejectionReason } = req.body;
+        
+                    // Validate required fields
+                    if (!status) {
+                        return res.status(400).json({
+                            success: false,
+                            message: "Status is required"
+                        });
+                    }
+        
+                    // Verify that the application belongs to the owner's estate
+                    const isOwnerApplication = await EstateService.verifyApplicationOwnership(
+                        applicationId, 
+                        ownerId
+                    );
+        
+                    if (!isOwnerApplication) {
+                        return res.status(403).json({
+                            success: false,
+                            message: "Access denied. This application does not belong to your estate."
+                        });
+                    }
+        
+                    const updatedApplication = await EstateService.updateApplicationStatus(
+                        applicationId,
+                        status,
+                        ownerId,
+                        rejectionReason
+                    );
+        
+                    res.status(200).json({
+                        success: true,
+                        message: `Application status updated to '${status}'`,
+                        data: updatedApplication
+                    });
+                
+                }
+    
+
 }
 
 module.exports = EstateController;

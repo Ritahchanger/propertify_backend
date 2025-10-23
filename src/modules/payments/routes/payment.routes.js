@@ -17,22 +17,22 @@ router.post(
   mpesaController.initiateRentPayment.bind(mpesaController)
 );
 router.get(
-  "/payments/:paymentId",
+  "/:paymentId",
   authMiddleware,
   mpesaController.getPaymentStatus.bind(mpesaController)
 );
 router.get(
-  "/payments/tenant/:tenantId",
+  "/tenant/:tenantId",
   authMiddleware,
   mpesaController.getPaymentsByTenant.bind(mpesaController)
 );
 router.get(
-  "/payments/unit/:unitId",
+  "/unit/:unitId",
   authMiddleware,
   mpesaController.getPaymentsByUnit.bind(mpesaController)
 );
 router.patch(
-  "/payments/:paymentId/cancel",
+  "/:paymentId/cancel",
   authMiddleware,
   mpesaController.cancelPayment.bind(mpesaController)
 );

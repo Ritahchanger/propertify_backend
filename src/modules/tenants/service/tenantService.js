@@ -1,8 +1,51 @@
-const { TenantApplication } = require("../../../database-config/index");
+const { TenantApplication, User } = require("../../../database-config/index");
 const { transporter } = require("../../../shared/utils/transporter");
+
+const { Op } = require("sequelize");
 
 class TenantService {
     async createApplication(data) {
+
+
+        const applicantId = data.applicantId;
+
+        const user = await User.findByPk(applicantId);
+
+        if(!user){
+
+            throw new Error("Tenant not found");
+
+        }
+
+        if(user.role !== 'tenant'){
+
+            throw new Error('Only users with tenant role can submit applications')
+
+        }
+
+        const existingApplication = await TenantApplication.findOne({
+
+            where:{
+
+                applicantId:applicantId,
+
+                unitId:data.unitId,
+
+
+                applicationStatus:{
+                    [Op.in] : ['pending','approved']
+                }
+
+            }
+
+        })
+
+        if(existingApplication){
+
+            throw new Error(`You already have a${existingApplication.applicationStatus} application for this unit`)
+
+        }
+
         const application = await TenantApplication.create(data);
 
 
