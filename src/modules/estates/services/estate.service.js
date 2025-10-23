@@ -70,13 +70,29 @@ class EstateService {
   static async getApplicationsByOwner(ownerId, page = 1, limit = 10, status = null) {
     const offset = (page - 1) * limit;
     
-    // Build where condition for applications
     const applicationWhere = {};
     if (status) {
       applicationWhere.applicationStatus = status;
     }
 
     const { count, rows } = await TenantApplication.findAndCountAll({
+      attributes: [
+        ['id', 'applicationId'], // Rename id to applicationId
+        'unitId', 
+        'applicantId', 
+        'preferredMoveInDate', 
+        'rentDurationMonths', 
+        'applicationStatus',
+        'employmentLetterUrl',
+        'idCopyUrl',
+        'kraPin',
+        'emergencyContactName',
+        'emergencyContactPhone',
+        'rejectionReason',
+        'appliedAt',
+        'reviewedAt',
+        'reviewedBy'
+      ],
       include: [
         {
           model: User,
@@ -110,7 +126,6 @@ class EstateService {
       offset: offset
     });
 
-    // Filter out applications that don't belong to the owner's estates
     const filteredApplications = rows.filter(app => app.unit && app.unit.estate);
     const filteredCount = filteredApplications.length;
 

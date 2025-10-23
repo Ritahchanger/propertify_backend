@@ -44,7 +44,8 @@ Router.get('/applications/owner',requireRole(["owner","manager","accountant"]), 
 Router.get('/applications/owner/stats',requireRole(["owner","manager","accountant"]), asyncHandler(EstateController.getOwnerApplicationsStats));
 Router.get('/applications/owner/:applicationId',requireRole(["owner","manager","accountant"]), asyncHandler(EstateController.getOwnerApplicationById));
 Router.put('/applications/owner/:applicationId/status',requireRole(["owner","manager","accountant"]), asyncHandler(EstateController.updateApplicationStatus));
-Router.get('/estates/:estateId/applications',requireRole(["owner","manager","accountant"]), asyncHandler(EstateController.getEstateApplications));
+Router.get('/:estateId/applications',requireRole(["owner","manager","accountant"]), asyncHandler(EstateController.getEstateApplications));
+Router.patch('/applications/:applicationId',requireRole(["owner","manager","accountant"]), asyncHandler(EstateController.updateApplicationStatus));
 
 
 module.exports = Router;
