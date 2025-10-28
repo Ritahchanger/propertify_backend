@@ -31,16 +31,12 @@ class EstateController {
         return res.status(200).json(estates);
     }
 
-<<<<<<< HEAD
     static async getEstateNamesByOwner(req, res) {
         const { ownerId } = req.params;
         const estatesNames = await EstateService.getEstateNamesByOwner(ownerId);
         return res.status(200).json(estatesNames);
     }
 
-
-=======
->>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     static async getEstateById(req, res) {
         const { id } = req.params;
         const estate = await EstateService.getEstateById(id);
@@ -75,12 +71,6 @@ class EstateController {
         });
     }
 
-
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     static async getOwnerApplications(req, res) {
         
             const ownerId = req.user.id; 

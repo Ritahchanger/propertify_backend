@@ -173,8 +173,6 @@ class EstateService {
     return stats;
   }
 
-<<<<<<< HEAD
-
   static async getEstateNamesByOwner(ownerId) {
         
     const estates = await Estate.findAll({
@@ -186,8 +184,6 @@ class EstateService {
    
 }
 
-=======
->>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
   // ✅ Get applications for a specific estate owned by the owner
   static async getApplicationsByEstate(ownerId, estateId, page = 1, limit = 10) {
     const offset = (page - 1) * limit;

@@ -42,10 +42,9 @@ class MpesaController {
   async initiateRentPayment(req, res) {
     try {
       const { phone, amount, unitId, tenantId, invoiceId } = req.body;
-<<<<<<< HEAD
-=======
+      
       const performedBy = req.user?.id || "system";
->>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
+
 
       console.log("🏠 Initiating rent payment STK Push...", {
         phone,

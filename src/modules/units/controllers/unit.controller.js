@@ -15,10 +15,6 @@ class UnitController {
         return res.status(201).json({ success: true, message: "Unit created successfully", data: unit });
     }
 
-<<<<<<< HEAD
-    
-=======
->>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     async getUnits(req, res) {
         const units = await UnitService.getAllUnits();
         return res.status(200).json({ success: true, data: units });
@@ -49,7 +45,6 @@ class UnitController {
 
         return res.status(200).json({ success: true, message: "Unit deleted successfully" });
     }
-<<<<<<< HEAD
     async getOwnerVacantUnits(req, res) {
         try {
             const { ownerId } = req.params;
@@ -84,8 +79,7 @@ class UnitController {
             });
         }
     }
-=======
->>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
+
 }
 
 module.exports = new UnitController();
