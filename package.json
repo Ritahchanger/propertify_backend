@@ -7,10 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --ignore 'src/database-config/' --ignore 'src/models/' ./src/server.js",
     "seed": "node ./src/database-config/seeders/main-seeder.js",
-
-     "seed-permissions": "node ./src/database-config/seeders/permission-seeders/index.js"
-
-
+    "seed-permissions": "node ./src/database-config/seeders/permission-seeders/index.js"
   },
   "keywords": [],
   "author": "",

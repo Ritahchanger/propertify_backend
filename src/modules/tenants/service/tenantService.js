@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 const { TenantApplication, User, Estate, Unit,Lease } = require("../../../database-config/index");
+=======
+const { TenantApplication, User, Estate, Unit } = require("../../../database-config/index");
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
 
 const { transporter } = require("../../../shared/utils/transporter");
 
 const { Op } = require("sequelize");
 
+<<<<<<< HEAD
 const leaseService = require("../../leases/services/lease.service");
 
 
@@ -11,6 +16,11 @@ class TenantService {
 
   async createApplication(data) {
 
+=======
+class TenantService {
+
+  async createApplication(data) {
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     const applicantId = data.applicantId;
 
     const user = await User.findByPk(applicantId);
@@ -66,6 +76,7 @@ class TenantService {
     return application;
   }
 
+<<<<<<< HEAD
   async updateApplicationStatus(id, status, reviewedBy, rejectionReason = null) {
     const application = await this.getApplicationById(id);
   
@@ -96,6 +107,30 @@ class TenantService {
     if (status === "approved") {
       subject = "Application Approved 🎉";
       text = `Congratulations! Your application for unit ${application.unitId} has been approved. A lease has been created and our office will contact you for the next steps.`;
+=======
+  async updateApplicationStatus(
+    id,
+    status,
+    reviewedBy,
+    rejectionReason = null
+  ) {
+    const application = await this.getApplicationById(id);
+
+    application.applicationStatus = status;
+    application.reviewedBy = reviewedBy;
+    application.reviewedAt = new Date();
+
+    if (status === "rejected" && rejectionReason) {
+      application.rejectionReason = rejectionReason;
+    }
+
+    await application.save();
+
+    let subject, text;
+    if (status === "approved") {
+      subject = "Application Approved 🎉";
+      text = `Congratulations! Your application for unit ${application.unitId} has been approved. Our office will contact you for the next steps.`;
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     } else if (status === "rejected") {
       subject = "Application Rejected ❌";
       text = `Unfortunately, your application was rejected. Reason: ${application.rejectionReason || "Not specified."}`;
@@ -106,9 +141,15 @@ class TenantService {
       subject = "Application Update";
       text = `Your application status is now: ${status}`;
     }
+<<<<<<< HEAD
   
     await this.sendEmail(application.email, subject, text);
   
+=======
+
+    await this.sendEmail(application.email, subject, text);
+
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     return application;
   }
 
@@ -125,6 +166,7 @@ class TenantService {
     }
   }
 
+<<<<<<< HEAD
   async getTenantsByOwner(ownerId, page = 1, limit = 10, status = null) {
     
     const offset = (page - 1) * limit;
@@ -133,13 +175,26 @@ class TenantService {
       applicationStatus: "approved", // Only get approved applications (active tenants)
     };
   
+=======
+  static async getTenantsByOwner(ownerId, page = 1, limit = 10, status = null) {
+    const offset = (page - 1) * limit;
+
+    const applicationWhere = {
+      applicationStatus: "approved", // Only get approved applications (active tenants)
+    };
+
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     // If status filter is provided, adjust the query
     if (status === "pending") {
       applicationWhere.applicationStatus = "pending";
     } else if (status === "rejected") {
       applicationWhere.applicationStatus = "rejected";
     }
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     const { count, rows } = await TenantApplication.findAndCountAll({
       attributes: [
         "id",
@@ -167,8 +222,12 @@ class TenantService {
             "idNumber",
             "role",
             "status",
+<<<<<<< HEAD
             // Remove "createdAt" - it's automatically included by Sequelize
             // or use the actual field name if you need it
+=======
+            "createdAt",
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
           ],
           where: {
             role: "tenant", // Ensure we're only getting tenant users
@@ -184,9 +243,14 @@ class TenantService {
             "bedrooms",
             "bathrooms",
             "status",
+<<<<<<< HEAD
             // Remove fields that don't exist in your Unit model
             // "squareFootage", 
             // "amenities",
+=======
+            "squareFootage",
+            "amenities",
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
           ],
           include: [
             {
@@ -219,14 +283,24 @@ class TenantService {
       ],
       limit: limit,
       offset: offset,
+<<<<<<< HEAD
       distinct: true,
     });
   
+=======
+      distinct: true, // Important for count with multiple includes
+    });
+
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     // Transform the data to a more tenant-focused structure
     const tenants = rows.map((application) =>
       this.transformToTenantStructure(application)
     );
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     return {
       tenants: tenants,
       totalCount: count,
@@ -242,7 +316,11 @@ class TenantService {
    * @param {string} ownerId - The owner's UUID
    * @returns {Promise<Object>} Tenant statistics
    */
+<<<<<<< HEAD
   async getTenantStatsByOwner(ownerId) {
+=======
+  static async getTenantStatsByOwner(ownerId) {
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     const applications = await TenantApplication.findAll({
       include: [
         {
@@ -311,7 +389,11 @@ class TenantService {
    * @param {string} ownerId - The owner's UUID (for authorization)
    * @returns {Promise<Object>} Detailed tenant information
    */
+<<<<<<< HEAD
   async getTenantDetails(tenantId, ownerId) {
+=======
+  static async getTenantDetails(tenantId, ownerId) {
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     const application = await TenantApplication.findOne({
       where: {
         applicantId: tenantId,
@@ -393,7 +475,11 @@ class TenantService {
    * @param {number} limit - Number of records per page
    * @returns {Promise<Object>} Paginated tenants for the specific estate
    */
+<<<<<<< HEAD
   async getTenantsByEstate(ownerId, estateId, page = 1, limit = 10) {
+=======
+  static async getTenantsByEstate(ownerId, estateId, page = 1, limit = 10) {
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     const offset = (page - 1) * limit;
 
     // Verify the estate belongs to the owner
@@ -483,7 +569,11 @@ class TenantService {
    * @param {number} limit - Number of records per page
    * @returns {Promise<Object>} Paginated search results
    */
+<<<<<<< HEAD
   async searchTenants(ownerId, searchTerm, page = 1, limit = 10) {
+=======
+  static async searchTenants(ownerId, searchTerm, page = 1, limit = 10) {
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     const offset = (page - 1) * limit;
     const { Op } = require("sequelize");
 
@@ -559,7 +649,11 @@ class TenantService {
    * @param {Object} application - TenantApplication instance
    * @returns {Object} Transformed tenant data
    */
+<<<<<<< HEAD
   transformToTenantStructure(application) {
+=======
+  static transformToTenantStructure(application) {
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     const appData = application.toJSON ? application.toJSON() : application;
 
     return {
@@ -624,7 +718,11 @@ class TenantService {
    * @param {number} daysThreshold - Number of days to look ahead
    * @returns {Promise<Array>} Tenants with upcoming lease expirations
    */
+<<<<<<< HEAD
   async getUpcomingLeaseExpirations(ownerId, daysThreshold = 30) {
+=======
+  static async getUpcomingLeaseExpirations(ownerId, daysThreshold = 30) {
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     const { Op } = require("sequelize");
     const today = new Date();
     const thresholdDate = new Date();

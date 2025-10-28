@@ -17,7 +17,6 @@ const AuditLog = require("../modules/audit/models/audit-log.model");
 const AuthAttempt = require("../modules/auth/models/auth-attempt.model");
 
 const Permission = require("../modules/users/model/permission.model");
-
 const RolePermission = require("../modules/users/model/role-permission.model");
 
 // User associations
@@ -41,7 +40,7 @@ Permission.hasMany(RolePermission, {
 });
 
 RolePermission.belongsTo(Permission, {
-  foreignKey: "permission_id",
+  foreignKey: "permissionId", // Fixed: changed from "permission_id" to "permissionId" for camelCase consistency
   as: "permission",
 });
 

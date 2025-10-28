@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 const { Unit,Estate } = require("../../../database-config/index");
+=======
+const { Unit } = require("../../../database-config/index");
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
 
 
 class UnitService {
@@ -27,6 +31,7 @@ class UnitService {
         await unit.destroy();
         return unit;
     }
+<<<<<<< HEAD
 
 
     async getOwnerVacantUnits(ownerId) {
@@ -61,6 +66,8 @@ class UnitService {
         });
       }
     
+=======
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
 }
 
 module.exports = new UnitService();

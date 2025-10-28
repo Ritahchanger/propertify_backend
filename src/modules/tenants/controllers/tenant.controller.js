@@ -64,7 +64,11 @@ class TenantController {
     });
   };
 
+<<<<<<< HEAD
   getTenantsByOwner = async (req, res) => {
+=======
+  static async getTenantsByOwner(req, res) {
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     const { id: ownerId } = req.user;
     const { page = 1, limit = 10, status } = req.query;
 
@@ -85,7 +89,11 @@ class TenantController {
   /**
    * Get tenant statistics for owner dashboard
    */
+<<<<<<< HEAD
   getTenantStats = async (req, res) => {
+=======
+  static async getTenantStats(req, res) {
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     const { id: ownerId } = req.user;
 
     const stats = await tenantService.getTenantStatsByOwner(ownerId);
@@ -100,7 +108,11 @@ class TenantController {
   /**
    * Get detailed information for a specific tenant
    */
+<<<<<<< HEAD
   getTenantDetails = async (req, res) => {
+=======
+  static async getTenantDetails(req, res) {
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     const { id: ownerId } = req.user;
     const { tenantId } = req.params;
 
@@ -119,7 +131,11 @@ class TenantController {
   /**
    * Get tenants by estate for a specific owner
    */
+<<<<<<< HEAD
   getTenantsByEstate = async (req, res) => {
+=======
+  static async getTenantsByEstate(req, res) {
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     const { id: ownerId } = req.user;
     const { estateId } = req.params;
     const { page = 1, limit = 10 } = req.query;
@@ -141,7 +157,11 @@ class TenantController {
   /**
    * Search tenants by name, email, or unit number
    */
+<<<<<<< HEAD
   searchTenants  = async (req, res) => {
+=======
+  static async searchTenants(req, res) {
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     const { id: ownerId } = req.user;
     const { q: searchTerm } = req.query;
     const { page = 1, limit = 10 } = req.query;
@@ -167,11 +187,36 @@ class TenantController {
     });
   }
 
+<<<<<<< HEAD
+=======
+  /**
+   * Get upcoming lease expirations
+   */
+  static async getUpcomingLeaseExpirations(req, res) {
+    const { id: ownerId } = req.user;
+    const { days = 30 } = req.query;
+
+    const expiringLeases = await tenantService.getUpcomingLeaseExpirations(
+      ownerId,
+      parseInt(days)
+    );
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Upcoming lease expirations retrieved successfully",
+      data: expiringLeases,
+    });
+  }
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
 
   /**
    * Get all tenants (for managers with broader access)
    */
+<<<<<<< HEAD
   getAllTenants = async (req, res) => {
+=======
+  static async getAllTenants(req, res) {
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     const { page = 1, limit = 10, status, estateId } = req.query;
     const { id: userId, role } = req.user;
 

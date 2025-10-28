@@ -43,19 +43,30 @@ class AuthController {
         // set cookies
         res.cookie(ACCESS_COOKIE_NAME, accessToken, {
             ...COOKIE_OPTIONS,
+<<<<<<< HEAD
             maxAge: 30 * 60 * 1000, 
+=======
+            maxAge: 30 * 60 * 1000, // 15 minutes
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
         });
 
         res.cookie(REFRESH_COOKIE_NAME, refreshToken, {
             ...COOKIE_OPTIONS,
+<<<<<<< HEAD
             maxAge: 7 * 24 * 60 * 60 * 1000, 
+=======
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
         });
 
         res.json({ user, accessToken, refreshToken });
     }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 67db1866807f543c0b2960787dadb7589b05a367
     static async refreshToken(req, res) {
 
         const token = req.cookies[REFRESH_COOKIE_NAME];
