@@ -64,12 +64,11 @@ class TenantController {
     });
   };
 
-
   getTenantsByOwner = async (req, res) => {
     const { id: ownerId } = req.user;
     const { page = 1, limit = 10, status } = req.query;
 
-    const result = await tenantService.getTenantsByOwner(
+    const tenants = await tenantService.getTenantsByOwner(
       ownerId,
       parseInt(page),
       parseInt(limit),
@@ -79,16 +78,15 @@ class TenantController {
     return res.status(StatusCodes.OK).json({
       success: true,
       message: "Tenants retrieved successfully",
-      data: result,
+      data: tenants,
     });
-  }
+  };
 
   /**
    * Get tenant statistics for owner dashboard
    */
 
   getTenantStats = async (req, res) => {
-
     const { id: ownerId } = req.user;
 
     const stats = await tenantService.getTenantStatsByOwner(ownerId);
@@ -98,14 +96,13 @@ class TenantController {
       message: "Tenant statistics retrieved successfully",
       data: stats,
     });
-  }
+  };
 
   /**
    * Get detailed information for a specific tenant
    */
 
   getTenantDetails = async (req, res) => {
-
     const { id: ownerId } = req.user;
     const { tenantId } = req.params;
 
@@ -119,7 +116,7 @@ class TenantController {
       message: "Tenant details retrieved successfully",
       data: tenantDetails,
     });
-  }
+  };
 
   /**
    * Get tenants by estate for a specific owner
@@ -142,12 +139,12 @@ class TenantController {
       message: "Estate tenants retrieved successfully",
       data: result,
     });
-  }
+  };
 
   /**
    * Search tenants by name, email, or unit number
    */
-  searchTenants  = async (req, res) => {
+  searchTenants = async (req, res) => {
     const { id: ownerId } = req.user;
     const { q: searchTerm } = req.query;
     const { page = 1, limit = 10 } = req.query;
@@ -171,12 +168,12 @@ class TenantController {
       message: "Tenant search completed successfully",
       data: result,
     });
-  }
+  };
 
   /**
    * Get upcoming lease expirations
    */
-  static async getUpcomingLeaseExpirations(req, res) {
+  getUpcomingLeaseExpirations = async (req, res) => {
     const { id: ownerId } = req.user;
     const { days = 30 } = req.query;
 
@@ -190,50 +187,53 @@ class TenantController {
       message: "Upcoming lease expirations retrieved successfully",
       data: expiringLeases,
     });
-  }
-
+  };
 
   /**
    * Get all tenants (for managers with broader access)
-   */
 
-  static async getAllTenants(req, res) {
+  */
 
-    const { page = 1, limit = 10, status, estateId } = req.query;
-    const { id: userId, role } = req.user;
+  // async getTenantsByOwner(req, res) {
+  //   const { id: ownerId } = req.user.id;
+  //   const { page = 1, limit = 10, estateId, status } = req.query;
 
-    let result;
+  //   if (!ownerId) {
+  //     return res.status(400).json({
+  //       success: false,
+  //       message: "Owner ID is required",
+  //       data: null,
+  //     });
+  //   }
 
-    if (role === "owner") {
-      result = await tenantService.getTenantsByOwner(
-        userId,
-        parseInt(page),
-        parseInt(limit),
-        status
-      );
-    } else if (role === "manager") {
-      // Manager might have access to multiple owners' tenants
-      // You can implement a different service method for managers
-      result = await tenantService.getTenantsForManager(
-        userId,
-        parseInt(page),
-        parseInt(limit),
-        status,
-        estateId
-      );
-    } else {
-      return res.status(StatusCodes.FORBIDDEN).json({
-        success: false,
-        message: "Insufficient permissions to access tenants",
-      });
-    }
+  //   const pageNum = parseInt(page);
+  //   const limitNum = parseInt(limit);
 
-    return res.status(StatusCodes.OK).json({
-      success: true,
-      message: "Tenants retrieved successfully",
-      data: result,
-    });
-  }
+  //   if (pageNum < 1 || limitNum < 1 || limitNum > 100) {
+  //     return res.status(400).json({
+  //       success: false,
+  //       message: "Invalid pagination parameters",
+  //       data: null,
+  //     });
+  //   }
+
+  //   const filters = {};
+  //   if (estateId) filters.estateId = estateId;
+  //   if (status) filters.status = status;
+
+  //   const result = await tenantService.getTenantsByOwner(
+  //     ownerId,
+  //     pageNum,
+  //     limitNum,
+  //     filters
+  //   );
+
+  //   return res.status(200).json({
+  //     success: true,
+  //     message: "Tenants fetched successfully",
+  //     result,
+  //   });
+  // }
 }
 
 module.exports = new TenantController();

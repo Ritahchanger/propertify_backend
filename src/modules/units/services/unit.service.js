@@ -60,6 +60,108 @@ class UnitService {
       ],
     });
   }
+
+  async getTenantUnitsWithDetails(tenantId) {
+    try {
+      const tenant = await User.findByPk(tenantId, {
+        attributes: ["id", "firstName", "lastName", "email", "phone"],
+      });
+
+      if (!tenant) {
+        throw new Error("Tenant not found");
+      }
+
+      const units = await Unit.findAll({
+        include: [
+          {
+            model: Estate,
+            as: "estate",
+            attributes: ["id", "name", "location", "description"],
+            include: [
+              {
+                model: User,
+                as: "owner",
+                attributes: ["id", "firstName", "lastName", "email", "phone"],
+              },
+            ],
+          },
+          {
+            model: Lease,
+            as: "leases",
+            where: { tenantId },
+            required: true,
+            attributes: [
+              "id",
+              "startDate",
+              "endDate",
+              "rentAmount",
+              "status",
+              "securityDeposit",
+              "created_at",
+            ],
+          },
+        ],
+        attributes: [
+          "id",
+          "unitNumber",
+          "bedrooms",
+          "bathrooms",
+          "monthlyRent",
+          "depositAmount",
+          "unitType",
+          "floorArea",
+          "status",
+          "description",
+        ],
+        order: [
+          ["estate", "name", "ASC"],
+          ["unitNumber", "ASC"],
+        ],
+      });
+
+      // Transform the data for better client response
+      const transformedUnits = units.map((unit) => {
+        const activeLease = unit.leases.find(
+          (lease) => lease.status === "active"
+        );
+        const leaseHistory = unit.leases.filter(
+          (lease) => lease.status !== "active"
+        );
+
+        return {
+          unit: {
+            id: unit.id,
+            unitNumber: unit.unitNumber,
+            bedrooms: unit.bedrooms,
+            bathrooms: unit.bathrooms,
+            monthlyRent: unit.monthlyRent,
+            depositAmount: unit.depositAmount,
+            unitType: unit.unitType,
+            floorArea: unit.floorArea,
+            status: unit.status,
+            description: unit.description,
+          },
+          estate: unit.estate,
+          activeLease: activeLease || null,
+          leaseHistory: leaseHistory,
+        };
+      });
+
+      return {
+        tenant: {
+          id: tenant.id,
+          name: `${tenant.firstName} ${tenant.lastName}`,
+          email: tenant.email,
+          phone: tenant.phone,
+        },
+        units: transformedUnits,
+        totalCount: transformedUnits.length,
+      };
+    } catch (error) {
+      console.error("Error in getTenantUnitsWithDetails:", error);
+      throw error;
+    }
+  }
 }
 
 module.exports = new UnitService();

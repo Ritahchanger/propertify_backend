@@ -32,7 +32,7 @@ Router.patch(
 Router.get(
   "/",
   requireRole(["owner", "manager"]),
-  asyncWrapper(tenantController.getAllTenants)
+  asyncWrapper(tenantController.getTenantsByOwner)
 );
 
 /**

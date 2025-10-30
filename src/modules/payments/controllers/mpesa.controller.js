@@ -1,3 +1,5 @@
+const { Unit  }  = require("../../../database-config/index");
+
 const MpesaService = require("../services/mpesa.service");
 
 class MpesaController {
@@ -42,7 +44,7 @@ class MpesaController {
   async initiateRentPayment(req, res) {
     try {
       const { phone, amount, unitId, tenantId, invoiceId } = req.body;
-      
+
       const performedBy = req.user?.id || "system";
 
 

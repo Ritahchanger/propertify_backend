@@ -1,4 +1,10 @@
-const { TenantApplication, User, Estate, Unit,Lease } = require("../../../database-config/index");
+const {
+  TenantApplication,
+  User,
+  Estate,
+  Unit,
+  Lease,
+} = require("../../../database-config/index");
 
 const { transporter } = require("../../../shared/utils/transporter");
 
@@ -6,10 +12,10 @@ const { Op } = require("sequelize");
 
 const leaseService = require("../../leases/services/lease.service");
 
+const tenantUtil = require("../../../shared/utils/formatTenantData");
+
 class TenantService {
-
   async createApplication(data) {
-
     const applicantId = data.applicantId;
 
     const user = await User.findByPk(applicantId);
@@ -65,8 +71,6 @@ class TenantService {
     return application;
   }
 
-
-
   async updateApplicationStatus(
     id,
     status,
@@ -89,7 +93,6 @@ class TenantService {
     if (status === "approved") {
       subject = "Application Approved 🎉";
       text = `Congratulations! Your application for unit ${application.unitId} has been approved. Our office will contact you for the next steps.`;
-
     } else if (status === "rejected") {
       subject = "Application Rejected ❌";
       text = `Unfortunately, your application was rejected. Reason: ${application.rejectionReason || "Not specified."}`;
@@ -100,10 +103,8 @@ class TenantService {
       subject = "Application Update";
       text = `Your application status is now: ${status}`;
     }
-  
-    await this.sendEmail(application.email, subject, text);
-  
 
+    await this.sendEmail(application.email, subject, text);
 
     await this.sendEmail(application.email, subject, text);
     return application;
@@ -122,118 +123,126 @@ class TenantService {
     }
   }
 
+  async getTenantsByOwner(ownerId, page = 1, limit = 10, filters = {}) {
+    try {
+      const offset = (page - 1) * limit;
 
-  async getTenantsByOwner(ownerId, page = 1, limit = 10, status = null) {
-    
-    const offset = (page - 1) * limit;
-  
-    const applicationWhere = {
-      applicationStatus: "approved", // Only get approved applications (active tenants)
-    };
-  
-
-    // If status filter is provided, adjust the query
-    if (status === "pending") {
-      applicationWhere.applicationStatus = "pending";
-    } else if (status === "rejected") {
-      applicationWhere.applicationStatus = "rejected";
-    }
-
-
-    const { count, rows } = await TenantApplication.findAndCountAll({
-      attributes: [
-        "id",
-        "preferredMoveInDate",
-        "rentDurationMonths",
-        "applicationStatus",
-        "employmentLetterUrl",
-        "idCopyUrl",
-        "kraPin",
-        "emergencyContactName",
-        "emergencyContactPhone",
-        "appliedAt",
-        "reviewedAt",
-      ],
-      include: [
-        {
-          model: User,
-          as: "applicant",
-          attributes: [
-            "id",
-            "firstName",
-            "lastName",
-            "email",
-            "phone",
-            "idNumber",
-            "role",
-            "status",
-            "createdAt",
-          ],
+      const { count, rows: applications } =
+        await TenantApplication.findAndCountAll({
           where: {
-            role: "tenant", // Ensure we're only getting tenant users
+            ...(filters.status && { applicationStatus: filters.status }),
+            ...(filters.search && {
+              [Op.or]: [
+                {
+                  "$applicant.firstName$": {
+                    [Op.iLike]: `%${filters.search}%`,
+                  },
+                },
+                {
+                  "$applicant.lastName$": { [Op.iLike]: `%${filters.search}%` },
+                },
+                { "$applicant.email$": { [Op.iLike]: `%${filters.search}%` } },
+                { "$unit.unitNumber$": { [Op.iLike]: `%${filters.search}%` } },
+              ],
+            }),
           },
-        },
-        {
-          model: Unit,
-          as: "unit",
-          attributes: [
-            "id",
-            "unitNumber",
-            "monthlyRent",
-            "bedrooms",
-            "bathrooms",
-            "status",
-            "squareFootage",
-            "amenities",
-          ],
           include: [
             {
-              model: Estate,
-              as: "estate",
-              where: { ownerId: ownerId },
+              model: User,
+              as: "applicant",
               attributes: [
                 "id",
-                "name",
-                "location",
-                "description",
-                "totalUnits",
+                "firstName",
+                "lastName",
+                "email",
+                "phone",
+                "idNumber",
+                "role",
                 "status",
+                "created_at",
+                "updated_at",
+              ],
+              where: {
+                role: "tenant",
+              },
+              required: true,
+            },
+            {
+              model: Unit,
+              as: "unit",
+              attributes: [
+                "id",
+                "unitNumber",
+                "bedrooms",
+                "bathrooms",
+                "monthlyRent",
+                "unitType",
+                "status",
+                "floorArea",
               ],
               include: [
                 {
-                  model: User,
-                  as: "owner",
-                  attributes: ["id", "firstName", "lastName", "email", "phone"],
+                  model: Estate,
+                  as: "estate",
+                  attributes: [
+                    "id",
+                    "name",
+                    "location",
+                    "description",
+                    "status",
+                  ],
+                  where: {
+                    ownerId,
+                    ...(filters.estateId && { id: filters.estateId }),
+                  },
+                  required: true,
+                  include: [
+                    {
+                      model: User,
+                      as: "owner",
+                      attributes: [
+                        "id",
+                        "firstName",
+                        "lastName",
+                        "email",
+                        "phone",
+                      ],
+                    },
+                  ],
                 },
               ],
+              required: true,
             },
           ],
-        },
-      ],
-      where: applicationWhere,
-      order: [
-        ["applicationStatus", "ASC"],
-        ["appliedAt", "DESC"],
-      ],
-      limit: limit,
-      offset: offset,
-      distinct: true,
-    });
-  
+          order: [
+            ["applicationStatus", "ASC"],
+            ["appliedAt", "DESC"],
+          ],
+          limit: limit,
+          offset: offset,
+          distinct: true,
+        });
 
+      const tenants = applications.map((application) =>
+        tenantUtil.formatTenantData(application)
+      );
 
-    // Transform the data to a more tenant-focused structure
-    const tenants = rows.map((application) =>
-      this.transformToTenantStructure(application)
-    );
-    return {
-      tenants: tenants,
-      totalCount: count,
-      totalPages: Math.ceil(count / limit),
-      currentPage: page,
-      hasNext: page < Math.ceil(count / limit),
-      hasPrevious: page > 1,
-    };
+      const totalPages = Math.ceil(count / limit);
+      const hasNext = page < totalPages;
+      const hasPrevious = page > 1;
+
+      return {
+        tenants,
+        totalCount: count,
+        totalPages,
+        currentPage: page,
+        hasNext,
+        hasPrevious,
+      };
+    } catch (error) {
+      console.error("Error in getTenantsByOwner:", error);
+      throw new Error(`Failed to fetch tenants: ${error.message}`);
+    }
   }
 
   /**
@@ -242,7 +251,6 @@ class TenantService {
    * @returns {Promise<Object>} Tenant statistics
    */
   async getTenantStatsByOwner(ownerId) {
-
     const applications = await TenantApplication.findAll({
       include: [
         {
@@ -313,7 +321,6 @@ class TenantService {
    */
 
   async getTenantDetails(tenantId, ownerId) {
-
     const application = await TenantApplication.findOne({
       where: {
         applicantId: tenantId,
@@ -397,7 +404,6 @@ class TenantService {
    */
 
   async getTenantsByEstate(ownerId, estateId, page = 1, limit = 10) {
-
     const offset = (page - 1) * limit;
 
     // Verify the estate belongs to the owner
@@ -489,7 +495,6 @@ class TenantService {
    */
 
   async searchTenants(ownerId, searchTerm, page = 1, limit = 10) {
-
     const offset = (page - 1) * limit;
     const { Op } = require("sequelize");
 
@@ -567,7 +572,6 @@ class TenantService {
    */
 
   transformToTenantStructure(application) {
-
     const appData = application.toJSON ? application.toJSON() : application;
 
     return {
@@ -633,9 +637,7 @@ class TenantService {
    * @returns {Promise<Array>} Tenants with upcoming lease expirations
    */
 
-
   async getUpcomingLeaseExpirations(ownerId, daysThreshold = 30) {
-
     const { Op } = require("sequelize");
     const today = new Date();
     const thresholdDate = new Date();

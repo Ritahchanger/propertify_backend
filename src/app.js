@@ -72,7 +72,7 @@ app.use(
 );
 
 
-app.use("/api/v1/tenant", authMiddleware, tenantRoute);
+app.use("/api/v1/tenant", authMiddleware,  require("./modules/tenants/routes/tenantRoutes"));
 
 
 app.use(
